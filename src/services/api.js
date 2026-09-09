@@ -8,4 +8,6 @@ export const sponsorApi = { list: (params) => api.get('/sponsors', { params }), 
 export const analyticsApi = { executive: () => api.get('/analytics/executive') };
 export const attendeeApi = { create: (details) => api.post('/attendees', details), me: () => api.get('/attendees/me'), list: (params) => api.get('/attendees', { params }) };
 export const interactionApi = { scan: (attendeeId) => api.get(`/interactions/scan/${encodeURIComponent(attendeeId)}`), create: (details) => api.post('/interactions', details) };
+export const interactionAdminApi = { list: (params) => api.get('/interactions', { params }) };
+export const leadApi = { list: (params) => api.get('/leads', { params }) };
 export default api;
