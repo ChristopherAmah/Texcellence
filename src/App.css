@@ -107,7 +107,7 @@ dd { margin: 0; color: #10243e; text-align: right; font-weight: 650; }
 .empty-state p, .resource-empty p { max-width: 330px; color: #5b8198; font-size: .86rem; line-height: 1.5; margin: 0; }
 .activity-feed { display: grid; max-height: 390px; overflow-y: auto; }
 .activity-item { display: grid; grid-template-columns: 12px minmax(0, 1fr); gap: 13px; padding: 17px 0; border-bottom: 1px solid #e4eff4; }
-.activity-dot { width: 9px; height: 9px; margin-top: 5px; border-radius: 50%; background: #147fe8; box-shadow: 0 0 0 4px #dff2f7; }
+.activity-dot { width: 9px; height: 9px; margin-top: 5px; border-radius: 50%; background: #147fe8; box-shadow: 0 0 0 4px #dff2f7; margin-left: 4px; }
 .activity-item strong { display: block; color: #10243e; font-size: .86rem; }
 .activity-item p { color: #52718a; font-size: .8rem; line-height: 1.4; margin: 4px 0; }
 .activity-item small { color: #5b8198; font-size: .7rem; }
