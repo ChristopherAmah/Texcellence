@@ -7,4 +7,5 @@ export const eventApi = { list: (params) => api.get('/events', { params }), crea
 export const sponsorApi = { list: (params) => api.get('/sponsors', { params }), create: (details) => api.post('/sponsors', details) };
 export const analyticsApi = { executive: () => api.get('/analytics/executive') };
 export const attendeeApi = { create: (details) => api.post('/attendees', details), me: () => api.get('/attendees/me'), list: (params) => api.get('/attendees', { params }) };
+export const interactionApi = { scan: (attendeeId) => api.get(`/interactions/scan/${encodeURIComponent(attendeeId)}`), create: (details) => api.post('/interactions', details) };
 export default api;
