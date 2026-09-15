@@ -30,7 +30,7 @@ function AttendeesPage() {
             <p>{selected.jobTitle || 'Attendee'}{selected.company ? ` · ${selected.company}` : ''}</p>
             <span className={`event-status ${selected.attendeeType?.toLowerCase()}`}>{selected.attendeeType?.replace('_', ' ')}</span>
           </div>
-          <div className="id-card-qr"><QRCodeSVG value={selected.qrCodeValue ? `${window.location.origin}/scan/${encodeURIComponent(selected.qrCodeValue)}` : selected.attendeeId} size={140} includeMargin /></div>
+          <div className="id-card-qr"><QRCodeSVG value={`${window.location.origin}/scan/${encodeURIComponent(selected.qrCodeValue || selected.attendeeId)}`} size={140} includeMargin /></div>
           <p className="id-card-id">{selected.attendeeId}</p>
         </article>}
       </div>
