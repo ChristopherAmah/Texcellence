@@ -5,7 +5,7 @@ import { analyticsApi } from '../../services/api.js';
 function OperationsDashboardPage({ user }) {
   const [analytics, setAnalytics] = useState(null);
   const [error, setError] = useState('');
-  useEffect(() => { let active = true; const load = () => analyticsApi.executive().then(({ data }) => { if (active) setAnalytics(data.data); }).catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'Unable to load overview data.'); }); Promise.resolve().then(load); const timer = window.setInterval(load, 10000); return () => { active = false; window.clearInterval(timer); }; }, []);
+  useEffect(() => { let active = true; const load = () => analyticsApi.executive().then(({ data }) => { if (active) setAnalytics(data.data); }).catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'Unable to load overview data.'); }); Promise.resolve().then(load); const timer = window.setInterval(load, 30000); return () => { active = false; window.clearInterval(timer); }; }, []);
   if (error) return <div className="workspace"><p className="form-error" role="alert">{error}</p></div>;
   if (!analytics) return <div className="loading-state">Loading event overview...</div>;
   const { metrics } = analytics;

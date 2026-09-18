@@ -14,12 +14,13 @@ function App() {
 
   return <Routes>
     <Route path="/scan/:attendeeId" element={<ScanInteractionPage />} />
-    <Route path="/auth" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+    <Route path="/admin" element={user ? <Navigate to="/operations" replace /> : <AuthPage admin />} />
+    <Route path="/auth" element={<Navigate to="/" replace />} />
     {user ? <Route element={<AuthenticatedLayout />}>
       <Route path="/" element={<HomePage />} />
       <Route path="/attendee" element={user.role === 'ATTENDEE' ? <AttendeePortalPage /> : <Navigate to="/operations" replace />} />
       <Route path="/operations/*" element={user.role !== 'ATTENDEE' ? <OperationsPage user={user} /> : <Navigate to="/attendee" replace />} />
-    </Route> : <Route path="*" element={<Navigate to="/auth" replace />} />}
+    </Route> : <Route path="/" element={<AttendeePortalPage />} />}
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>;
 }

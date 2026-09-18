@@ -12,7 +12,7 @@ function AttendeesPage() {
   const [selected, setSelected] = useState(null);
   const [cardError, setCardError] = useState('');
   useEffect(() => {
-    Promise.resolve().then(() => attendeeApi.list({ limit: 100 })).then(({ data }) => { setAttendees(data.data.attendees); setPagination(data.data.pagination); }).catch((requestError) => setError(requestError.response?.data?.message || 'Unable to load attendees.')).finally(() => setLoading(false));
+    Promise.resolve().then(() => attendeeApi.list({ limit: 25 })).then(({ data }) => { setAttendees(data.data.attendees); setPagination(data.data.pagination); }).catch((requestError) => setError(requestError.response?.data?.message || 'Unable to load attendees.')).finally(() => setLoading(false));
   }, []);
   const filteredAttendees = attendees.filter((attendee) => `${attendee.firstName} ${attendee.lastName} ${attendee.email} ${attendee.company || ''} ${attendee.attendeeId}`.toLowerCase().includes(search.toLowerCase()));
   const openCard = (attendee) => { setCardError(''); setSelected(null); attendeeApi.getById(attendee.attendeeId).then(({ data }) => setSelected(data.data.attendee)).catch((requestError) => setCardError(requestError.response?.data?.message || 'Unable to load attendee details.')); };
