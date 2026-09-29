@@ -6,11 +6,13 @@ import AttendeePortalPage from './pages/attendee/AttendeePortalPage.jsx';
 import HomePage from './pages/HomePage.jsx';
 import OperationsPage from './pages/operations/OperationsPage.jsx';
 import ScanInteractionPage from './pages/sponsor/ScanInteractionPage.jsx';
+import ChangePasswordPage from './pages/auth/ChangePasswordPage.jsx';
 import './App.css';
 
 function App() {
   const { user, isLoading } = useAuth();
   if (isLoading) return <main className="app-loading">Loading TEXCELLENCE...</main>;
+  if (user?.mustChangePassword) return <Routes><Route path="/change-password" element={<ChangePasswordPage />} /><Route path="*" element={<Navigate to="/change-password" replace />} /></Routes>;
 
   return <Routes>
     <Route path="/scan/:attendeeId" element={<ScanInteractionPage />} />
