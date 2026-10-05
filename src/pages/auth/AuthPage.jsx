@@ -5,20 +5,19 @@ import { authApi } from '../../services/api.js';
 import PasswordField from '../../components/PasswordField.jsx';
 import logo from '../../assets/texcellence_logo.png';
 
-function AuthPage({ admin = false }) {
+function AuthPage() {
   const { setSession } = useAuth();
-  const [mode, setMode] = useState('register');
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const update = (field, value) => setForm((current) => ({ ...current, [field]: value }));
   const submit = async (event) => {
     event.preventDefault(); setSubmitting(true); setError('');
-    try { const credentials = { ...form, email: form.email.trim() }; const response = mode === 'login' ? await authApi.login({ email: credentials.email, password: credentials.password }) : await authApi.adminRegister(credentials); setSession(response.data.data); }
+    try { const response = await authApi.login({ email: form.email.trim(), password: form.password }); setSession(response.data.data); }
     catch (requestError) { setError(requestError.response?.data?.message || 'Unable to connect to TEXCELLENCE.'); }
     finally { setSubmitting(false); }
   };
-  return <main className="app-shell auth-shell"><section className="brand-panel"><div className="brand-lockup"><img className="brand-logo" src={logo} alt="The TeXcellence Conference" /><span className="edition">2026</span></div><div className="brand-copy"><p className="eyebrow">{admin ? 'Control room access' : 'Secure access'}</p><h1>{admin ? 'Run every conversation with clarity.' : 'Every conversation should lead somewhere.'}</h1><p>{admin ? 'Create an administrator account to manage TEXCELLENCE.' : 'Join us at Texcellence 2026 and connect with visionary founders and industry leaders.'}</p></div><div className="brand-stat"><CalendarDays size={20} /><span>Tuesday, 13 October 2026, at the Landmark Event Centre, Lagos.</span></div></section><section className="auth-panel"><div className="auth-card"><p className="eyebrow">Administrator access</p><h2>{mode === 'login' ? 'Sign in to the control room' : 'Create admin account'}</h2><div className="mode-toggle" role="group" aria-label="Authentication mode"><button type="button" className={mode === 'login' ? 'active' : ''} onClick={() => setMode('login')}>Sign in</button><button type="button" className={mode === 'register' ? 'active' : ''} onClick={() => setMode('register')}>Register</button></div><form onSubmit={submit}>{mode === 'register' && <div className="name-fields"><label>First name<input required value={form.firstName} onChange={(event) => update('firstName', event.target.value)} /></label><label>Last name<input required value={form.lastName} onChange={(event) => update('lastName', event.target.value)} /></label></div>}<label>Email address<input type="email" required value={form.email} onChange={(event) => update('email', event.target.value)} /></label><label>Password<PasswordField required minLength={mode === 'register' ? 12 : undefined} value={form.password} onChange={(event) => update('password', event.target.value)} /></label>{mode === 'register' && <p className="field-note">Use at least 12 characters.</p>}{error && <p className="form-error" role="alert">{error}</p>}<button className="primary-action" disabled={submitting}>{submitting ? 'Please wait...' : mode === 'login' ? 'Sign in' : 'Create admin account'}<ChevronRight size={18} /></button></form></div></section></main>;
+  return <main className="app-shell auth-shell"><section className="brand-panel"><div className="brand-lockup"><img className="brand-logo" src={logo} alt="The TeXcellence Conference" /><span className="edition">2026</span></div><div className="brand-copy"><p className="eyebrow">Control room access</p><h1>Run every conversation with clarity.</h1><p>Sign in with an administrator account to manage TEXCELLENCE.</p></div><div className="brand-stat"><CalendarDays size={20} /><span>Tuesday, 13 October 2026, at the Landmark Event Centre, Lagos.</span></div></section><section className="auth-panel"><div className="auth-card"><p className="eyebrow">Administrator access</p><h2>Sign in to the control room</h2><form onSubmit={submit}><label>Email address<input type="email" required value={form.email} onChange={(event) => update('email', event.target.value)} /></label><label>Password<PasswordField required value={form.password} onChange={(event) => update('password', event.target.value)} /></label>{error && <p className="form-error" role="alert">{error}</p>}<button className="primary-action" disabled={submitting}>{submitting ? 'Please wait...' : 'Sign in'}<ChevronRight size={18} /></button></form></div></section></main>;
 }
 
 export default AuthPage;

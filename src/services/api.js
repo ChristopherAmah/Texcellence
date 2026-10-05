@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api', headers: { 'Content-Type': 'application/json' } });
 api.interceptors.request.use((config) => { const token = localStorage.getItem('texcellence_token'); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
-export const authApi = { login: (credentials) => api.post('/auth/login', credentials), adminRegister: (details) => api.post('/auth/admin/register', details), me: () => api.get('/auth/me'), changePassword: (details) => api.patch('/auth/change-password', details) };
+export const authApi = { login: (credentials) => api.post('/auth/login', credentials), me: () => api.get('/auth/me'), changePassword: (details) => api.patch('/auth/change-password', details) };
 export const eventApi = { list: (params) => api.get('/events', { params }), create: (details) => api.post('/events', details), update: (eventId, details) => api.patch(`/events/${eventId}`, details) };
 export const sponsorApi = { list: (params) => api.get('/sponsors', { params }), create: (details) => api.post('/sponsors', details), remove: (sponsorId) => api.delete(`/sponsors/${encodeURIComponent(sponsorId)}`) };
 export const analyticsApi = { executive: () => api.get('/analytics/executive') };

@@ -16,7 +16,7 @@ function App() {
 
   return <Routes>
     <Route path="/scan/:attendeeId" element={<ScanInteractionPage />} />
-    <Route path="/admin" element={user ? <Navigate to="/operations" replace /> : <AuthPage admin />} />
+    <Route path="/admin" element={user ? <Navigate to="/operations" replace /> : <AuthPage />} />
     <Route path="/auth" element={<Navigate to="/" replace />} />
     {user ? <Route element={<AuthenticatedLayout />}>
       <Route path="/" element={<HomePage />} />

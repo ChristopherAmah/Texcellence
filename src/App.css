@@ -32,9 +32,6 @@ h1 { font-size: clamp(2.8rem, 5vw, 5.7rem); line-height: 1.02; letter-spacing: -
 .auth-panel { display: grid; place-items: center; padding: 32px; background: #f5f9fc; }
 .auth-card { width: min(100%, 430px); }
 .auth-card h2 { color: #10243e; font-size: 1.8rem; line-height: 1.18; margin-bottom: 28px; }
-.mode-toggle { display: grid; grid-template-columns: 1fr 1fr; background: #e2f0f5; padding: 3px; margin-bottom: 28px; border-radius: 10px; }
-.mode-toggle button { color: #52718a; background: transparent; border: 0; border-radius: 8px; padding: 10px; font-size: .9rem; }
-.mode-toggle .active { background: #fff; color: #075fd3; box-shadow: 0 2px 8px #075fd31c; }
 form { display: grid; gap: 17px; }
 label { color: #31536e; display: grid; gap: 7px; font-size: .84rem; font-weight: 650; }
 input, select { width: 100%; border: 1px solid #b8d0dc; background: #fff; color: #10243e; border-radius: 9px; padding: 12px; outline: none; }
