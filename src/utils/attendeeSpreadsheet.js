@@ -1,8 +1,8 @@
-import readXlsxFile from 'read-excel-file/browser';
+import { readSheet } from 'read-excel-file/browser';
 
 const headerAliases = {
-  firstname: 'firstName', first: 'firstName', lastname: 'lastName', surname: 'lastName', email: 'email', emailaddress: 'email',
-  phone: 'phone', phonenumber: 'phone', jobtitle: 'jobTitle', title: 'jobTitle', designation: 'jobTitle', role: 'jobTitle',
+  firstname: 'firstName', first: 'firstName', lastname: 'lastName', surname: 'lastName', email: 'email', emailaddress: 'email', contactemail: 'email',
+  phone: 'phone', phonenumber: 'phone', mobile: 'phone', mobilenumber: 'phone', jobtitle: 'jobTitle', title: 'jobTitle', designation: 'jobTitle', role: 'jobTitle',
   company: 'company', companyname: 'company', organization: 'company', organisation: 'company', organizationname: 'company', organisationname: 'company',
   industry: 'industry', companysize: 'companySize', country: 'country', city: 'city', attendeetype: 'attendeeType', type: 'attendeeType',
   consent: 'consent', leadsharingconsent: 'leadSharingConsent', sponsorsharingconsent: 'leadSharingConsent',
@@ -65,7 +65,10 @@ const rowsToAttendees = (rows) => {
     fields.forEach((field, columnIndex) => {
       if (!field) return;
       const value = row[columnIndex];
-      if (field === 'phone') attendee[field] = phoneValue(value);
+      if (field === 'phone') {
+        const phone = phoneValue(value);
+        if (phone) attendee[field] = phone;
+      }
       else if (field === 'consent' || field === 'leadSharingConsent') {
         const parsed = booleanValue(value);
         if (parsed !== undefined) attendee[field] = parsed;
@@ -87,7 +90,7 @@ export const parseAttendeeFile = async (file) => {
     const delimiter = extension === 'tsv' || (firstLine.match(/\t/g)?.length || 0) > (firstLine.match(/,/g)?.length || 0) ? '\t' : ',';
     return rowsToAttendees(parseDelimitedText(contents, delimiter));
   }
-  if (extension === 'xlsx') return rowsToAttendees(await readXlsxFile(file));
+  if (extension === 'xlsx') return rowsToAttendees(await readSheet(file));
   throw new Error('Choose an .xlsx, .csv, or .tsv file.');
 };
 
