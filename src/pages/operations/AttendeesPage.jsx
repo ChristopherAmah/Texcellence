@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, Download, FileSpreadsheet, Printer, Search, Upload, UsersRound, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Download, FileSpreadsheet, Printer, Search, Upload, UsersRound, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { attendeeApi, eventApi } from '../../services/api.js';
 import { downloadAttendeeTemplate, parseAttendeeFile } from '../../utils/attendeeSpreadsheet.js';
@@ -9,6 +9,8 @@ function AttendeesPage() {
   const [pagination, setPagination] = useState({ total: 0 });
   const [events, setEvents] = useState([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selected, setSelected] = useState(null);
@@ -22,13 +24,19 @@ function AttendeesPage() {
   const [importResult, setImportResult] = useState(null);
   const fileInput = useRef(null);
 
-  const loadAttendees = () => {
-    setLoading(true);
-    attendeeApi.list({ limit: 100 }).then(({ data }) => { setAttendees(data.data.attendees); setPagination(data.data.pagination); }).catch((requestError) => setError(requestError.response?.data?.message || 'Unable to load attendees.')).finally(() => setLoading(false));
-  };
+  useEffect(() => {
+    let active = true;
+    const timeout = window.setTimeout(() => {
+      setLoading(true); setError('');
+      attendeeApi.list({ page, limit: 50, search: search.trim() })
+        .then(({ data }) => { if (active) { setAttendees(data.data.attendees); setPagination(data.data.pagination); } })
+        .catch((requestError) => { if (active) setError(requestError.response?.data?.message || 'Unable to load attendees.'); })
+        .finally(() => { if (active) setLoading(false); });
+    }, search.trim() ? 300 : 0);
+    return () => { active = false; window.clearTimeout(timeout); };
+  }, [page, search, refreshKey]);
 
   useEffect(() => {
-    Promise.resolve().then(loadAttendees);
     eventApi.list({ limit: 100 }).then(({ data }) => {
       const availableEvents = data.data.events;
       setEvents(availableEvents);
@@ -37,7 +45,6 @@ function AttendeesPage() {
     }).catch(() => {});
   }, []);
 
-  const filteredAttendees = attendees.filter((attendee) => `${attendee.firstName} ${attendee.lastName} ${attendee.email} ${attendee.company || ''} ${attendee.attendeeId}`.toLowerCase().includes(search.toLowerCase()));
   const openCard = (attendee) => { setCardError(''); setSelected(null); attendeeApi.getById(attendee.attendeeId).then(({ data }) => setSelected(data.data.attendee)).catch((requestError) => setCardError(requestError.response?.data?.message || 'Unable to load attendee details.')); };
   const closeCard = () => { setSelected(null); setCardError(''); };
   const closeImport = () => { if (importing) return; setShowImport(false); setImportRows([]); setFileName(''); setImportError(''); setImportResult(null); };
@@ -53,7 +60,7 @@ function AttendeesPage() {
     try {
       const response = await attendeeApi.import({ eventId, attendees: importRows });
       setImportResult(response.data.data);
-      if (response.data.data.summary.imported || response.data.data.summary.updated) loadAttendees();
+      if (response.data.data.summary.imported || response.data.data.summary.updated) { setPage(1); setRefreshKey((current) => current + 1); }
     } catch (requestError) { setImportError(requestError.response?.data?.message || 'Unable to import attendees.'); }
     finally { setImporting(false); }
   };
@@ -61,8 +68,8 @@ function AttendeesPage() {
   return <div className="resource-page">
     <div className="section-heading"><p className="eyebrow">Event audience</p><h1>Attendees</h1><p>Every completed attendee registration is saved here with its event pass and registration status. Click a row to view and print their ID card.</p></div>
     <section className="attendees-panel">
-      <div className="attendees-toolbar"><div className="panel-heading"><div><p className="eyebrow">Attendee registry</p><h2>{pagination.total || 0} registered</h2></div></div><div className="attendee-tools"><label className="search-field"><Search size={16} /><input placeholder="Search attendees" value={search} onChange={(event) => setSearch(event.target.value)} /></label><button type="button" className="primary-action compact-action" onClick={() => setShowImport(true)}><Upload size={17} />Import file</button></div></div>
-      {loading ? <div className="empty-state">Loading attendees...</div> : error ? <p className="form-error" role="alert">{error}</p> : filteredAttendees.length ? <div className="attendees-table-wrap"><table className="attendees-table"><thead><tr><th>Attendee</th><th>Job title</th><th>Company</th><th>Event</th><th>Pass ID</th><th>Status</th><th>Registered</th></tr></thead><tbody>{filteredAttendees.map((attendee) => <tr key={attendee._id} className="attendee-row" onClick={() => openCard(attendee)}><td><strong>{attendee.firstName} {attendee.lastName}</strong><span>{attendee.email}</span></td><td>{attendee.jobTitle || 'Not provided'}</td><td>{attendee.company || 'Not provided'}</td><td>{attendee.eventId?.name || 'TEXCELLENCE'}</td><td><code>{attendee.attendeeId}</code></td><td><span className={`event-status ${attendee.attendanceStatus.toLowerCase()}`}>{attendee.attendanceStatus.replace('_', ' ')}</span></td><td>{new Date(attendee.registrationDate || attendee.createdAt).toLocaleDateString()}</td></tr>)}</tbody></table></div> : <div className="empty-state"><UsersRound size={22} /><h3>No attendees registered</h3><p>Completed registrations and imported attendees will appear here.</p></div>}
+      <div className="attendees-toolbar"><div className="panel-heading"><div><p className="eyebrow">Attendee registry</p><h2>{pagination.total || 0} {search.trim() ? 'found' : 'registered'}</h2></div></div><div className="attendee-tools"><label className="search-field"><Search size={16} /><input placeholder="Search all attendees" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} /></label><button type="button" className="primary-action compact-action" onClick={() => setShowImport(true)}><Upload size={17} />Import file</button></div></div>
+      {loading ? <div className="empty-state">Loading attendees...</div> : error ? <p className="form-error" role="alert">{error}</p> : attendees.length ? <><div className="attendees-table-wrap"><table className="attendees-table"><thead><tr><th>Attendee</th><th>Job title</th><th>Company</th><th>Event</th><th>Pass ID</th><th>Status</th><th>Registered</th></tr></thead><tbody>{attendees.map((attendee) => <tr key={attendee._id} className="attendee-row" onClick={() => openCard(attendee)}><td><strong>{attendee.firstName} {attendee.lastName}</strong><span>{attendee.email}</span></td><td>{attendee.jobTitle || 'Not provided'}</td><td>{attendee.company || 'Not provided'}</td><td>{attendee.eventId?.name || 'TEXCELLENCE'}</td><td><code>{attendee.attendeeId}</code></td><td><span className={`event-status ${attendee.attendanceStatus.toLowerCase()}`}>{attendee.attendanceStatus.replace('_', ' ')}</span></td><td>{new Date(attendee.registrationDate || attendee.createdAt).toLocaleDateString()}</td></tr>)}</tbody></table></div><div className="table-pagination"><span>Showing {(pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total}</span><div><button type="button" className="secondary-action compact-action" disabled={pagination.page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))}><ChevronLeft size={16} />Previous</button><strong>Page {pagination.page} of {pagination.totalPages}</strong><button type="button" className="secondary-action compact-action" disabled={pagination.page >= pagination.totalPages} onClick={() => setPage((current) => current + 1)}>Next<ChevronRight size={16} /></button></div></div></> : <div className="empty-state"><UsersRound size={22} /><h3>{search.trim() ? 'No attendees found' : 'No attendees registered'}</h3><p>{search.trim() ? 'Try a different name, email, company, job title, phone number, or pass ID.' : 'Completed registrations and imported attendees will appear here.'}</p></div>}
     </section>
 
     {showImport && <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="import-title" onClick={(event) => { if (event.target === event.currentTarget) closeImport(); }}><form className="registration-form event-form modal-panel import-panel" onSubmit={submitImport}>
